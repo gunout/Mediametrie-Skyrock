@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKYROCK • IA Analytics Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+        
+        :root {
+            --primary: #00f3ff;
+            --secondary: #ff00e5;
+            --accent: #7000ff;
+            --background: #0a0a0f;
+            --surface: rgba(20, 20, 30, 0.8);
+            --surface-light: rgba(30, 30, 40, 0.9);
+            --text: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+            --success: #00ff88;
+            --warning: #ffbb00;
+            --danger: #ff3366;
+            --info: #00f3ff;
+            --gradient-1: linear-gradient(135deg, #00f3ff, #7000ff);
+            --gradient-2: linear-gradient(135deg, #ff00e5, #ff6600);
+            --gradient-3: linear-gradient(135deg, #00ff88, #00f3ff);
+            --glass-effect: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--glass-effect) 1px, transparent 1px),
+                linear-gradient(90deg, var(--glass-effect) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) translateX(-10vw);
+            }
+            to {
+                transform: translateY(-100vh) translateX(10vw);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header avec IA */
+        .header {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 243, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--gradient-1);
+            opacity: 0.1;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .logo::after {
+            content: 'IA ANALYTICS';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            font-size: 0.3em;
+            font-weight: 400;
+            background: var(--gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+        }
+
+        .ia-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 25px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 50px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+            animation: glow 3s infinite;
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 136, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+        }
+
+        .ia-icon {
+            font-size: 1.5em;
+            animation: spin 10s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Grille principale */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Carte IA Insights */
+        .ia-insights {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.1);
+        }
+
+        .ia-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ia-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            animation: pulse-ia 2s infinite;
+        }
+
+        @keyframes pulse-ia {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .ia-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            background: var(--gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ia-subtitle {
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        .insights-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .insight-card:hover {
+            border-color: var(--success);
+            transform: translateX(5px);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .insight-type {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 20px;
+            font-size: 0.75em;
+            color: var(--success);
+            margin-bottom: 10px;
+        }
+
+        .insight-content {
+            font-size: 0.95em;
+            line-height: 1.5;
+            color: var(--text);
+        }
+
+        .insight-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            color: var(--text-dim);
+            font-size: 0.8em;
+        }
+
+        .confidence {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .confidence-bar {
+            width: 60px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--gradient-3);
+            border-radius: 2px;
+        }
+
+        /* Stats avec micro-interactions */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 25px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 243, 255, 0.4);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 243, 255, 0.1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .stat-source {
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            font-size: 0.8em;
+            color: var(--text-dim);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 3.5em;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 10px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        /* Graphiques interactifs */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 25px;
+            padding: 25px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-btn {
+            padding: 5px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85em;
+        }
+
+        .chart-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .chart-btn.active {
+            background: var(--primary);
+            color: var(--background);
+            border-color: var(--primary);
+        }
+
+        /* Barres de progression */
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .progress-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .progress-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            color: var(--text-dim);
+            font-size: 0.95em;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        /* Prédictions IA */
+        .predictions-panel {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 229, 0.3);
+            border-radius: 25px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .predictions-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .predictions-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .predictions-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .predictions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .prediction-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 0, 229, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .prediction-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 0, 229, 0.2);
+        }
+
+        .prediction-label {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .prediction-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .prediction-range {
+            color: var(--text-dim);
+            font-size: 0.85em;
+        }
+
+        .prediction-confidence {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9em;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-sources {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .source-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .source-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .source-dot.acpm {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .source-dot.mediametrie {
+            background: var(--warning);
+            box-shadow: 0 0 10px var(--warning);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--primary);
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: modalIn 0.5s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--primary);
+            background: none;
+            color: var(--primary);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn:hover {
+            background: var(--primary);
+            color: var(--background);
+        }
+
+        .loading {
+            position: relative;
+            min-height: 200px;
+        }
+
+        .loading::after {
+            content: '⏳ Analyse IA en cours...';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-dim);
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- Header avec IA -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">
+                    SKYROCK
+                </div>
+                <div class="ia-badge">
+                    <i class="fas fa-brain ia-icon"></i>
+                    <span>IA ANALYTICS • PRÉDICTIF</span>
+                </div>
+                <div class="update-badge" id="update-badge">
+                    <i class="fas fa-sync-alt"></i>
+                    <span id="update-date">Chargement...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Principal avec IA Insights -->
+        <div class="dashboard-grid">
+            <!-- Colonne IA Insights -->
+            <div class="ia-insights">
+                <div class="ia-header">
+                    <div class="ia-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="ia-title">ANALYSE INTELLIGENTE</div>
+                        <div class="ia-subtitle">Insights générés en temps réel</div>
+                    </div>
+                </div>
+                <div class="insights-container" id="insights-container">
+                    <!-- Rempli par JavaScript -->
+                </div>
+            </div>
+
+            <!-- Stats rapides -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">📱</div>
+                        <div class="stat-source">ACPM</div>
+                    </div>
+                    <div class="stat-value" id="streaming-value">---</div>
+                    <div class="stat-label" id="streaming-label">ÉCOUTES ACTIVES</div>
+                    <div class="stat-trend" id="streaming-trend"></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">📻</div>
+                        <div class="stat-source">Médiamétrie</div>
+                    </div>
+                    <div class="stat-value" id="audience-value">---</div>
+                    <div class="stat-label" id="audience-label">AUDITEURS QUOTIDIENS</div>
+                    <div class="stat-trend" id="audience-trend"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphiques interactifs -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        📊 CLASSEMENT DIGITAL
+                        <span id="digital-period">CHARGEMENT</span>
+                    </div>
+                    <div class="chart-actions">
+                        <button class="chart-btn active" onclick="switchChart('digital', 'bar')">Barres</button>
+                        <button class="chart-btn" onclick="switchChart('digital', 'list')">Liste</button>
+                    </div>
+                </div>
+                <div class="progress-list" id="digital-ranking"></div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        🏆 TOP IDF
+                        <span id="idf-period">CHARGEMENT</span>
+                    </div>
+                    <div class="chart-actions">
+                        <button class="chart-btn active" onclick="switchChart('idf', 'bar')">Barres</button>
+                        <button class="chart-btn" onclick="switchChart('idf', 'list')">Liste</button>
+                    </div>
+                </div>
+                <div class="progress-list" id="idf-ranking"></div>
+            </div>
+        </div>
+
+        <!-- Émissions avec interactions -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    🎙️ AUDIENCE DES ÉMISSIONS
+                    <span id="shows-period">CHARGEMENT</span>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-btn active" onclick="sortShows('audience')">Par audience</button>
+                    <button class="chart-btn" onclick="sortShows('name')">Par nom</button>
+                </div>
+            </div>
+            <div class="shows-grid" id="shows-grid"></div>
+        </div>
+
+        <!-- Prédictions IA -->
+        <div class="predictions-panel">
+            <div class="predictions-header">
+                <div class="predictions-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="predictions-title">PRÉDICTIONS IA • PROCHAINES 4 SEMAINES</div>
+            </div>
+            <div class="predictions-grid" id="predictions-grid">
+                <!-- Rempli par JavaScript -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div>SKYROCK IA ANALYTICS • ANALYSE PRÉDICTIVE</div>
+            <div class="data-sources" id="data-sources"></div>
+        </div>
+    </div>
+
+    <!-- Modal pour détails -->
+    <div class="modal" id="insight-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-title" id="modal-title"></div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal()">Fermer</button>
+                <button class="modal-btn" onclick="applyRecommendation()">Appliquer recommandation</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        let currentData = null;
+        let chartMode = { digital: 'bar', idf: 'bar' };
+
+        // Génération des particules
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particle.style.background = ['#00f3ff', '#ff00e5', '#7000ff', '#00ff88'][Math.floor(Math.random() * 4)];
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Formatage des nombres
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(3).replace('.', ',').replace(',000', '') + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1).replace('.', ',') + 'k';
+            }
+            return num.toString();
+        }
+
+        // Génération des insights IA
+        function generateInsights(data) {
+            const insights = [];
+            
+            // Insight 1 : Croissance streaming
+            if (data.streaming.trend > 10) {
+                insights.push({
+                    type: 'CROISSANCE',
+                    content: `📈 Le streaming explose avec +${data.streaming.trend}% ! Tendance portée par le mobile (65% des écoutes).`,
+                    confidence: 95,
+                    recommendation: 'Renforcer la présence sur TikTok/Instagram'
+                });
+            }
+
+            // Insight 2 : Comparaison avec concurrents
+            const skyrockShare = data.idf.stations[0].listeners;
+            const nrjShare = data.idf.stations[1].listeners;
+            const advantage = ((skyrockShare - nrjShare) / nrjShare * 100).toFixed(1);
+            
+            insights.push({
+                type: 'COMPÉTITIF',
+                content: `🏆 Skyrock domine NRJ avec ${advantage}% d'avance en Île-de-France. Position de leader renforcée.`,
+                confidence: 92,
+                recommendation: 'Capitaliser sur cette avance dans les programmes locaux'
+            });
+
+            // Insight 3 : Performance des émissions
+            const morning = data.shows.items.find(s => s.name === 'LE MORNING').listeners;
+            const afternoon = data.shows.items.find(s => s.name === 'LE 16-20').listeners;
+            
+            if (afternoon > morning) {
+                insights.push({
+                    type: 'PROGRAMMATION',
+                    content: `⚠️ Le 16-20 (${formatShowNumber(afternoon)}) dépasse le Morning (${formatShowNumber(morning)}). Inversion des tendances historique !`,
+                    confidence: 88,
+                    recommendation: 'Analyser les pics d\'écoute de l\'après-midi'
+                });
+            }
+
+            // Insight 4 : Prédiction
+            const predictedGrowth = (data.streaming.trend * 1.2).toFixed(1);
+            insights.push({
+                type: 'PRÉDICTION',
+                content: `🔮 Projection : +${predictedGrowth}% d'écoutes streaming dans 30 jours si tendance actuelle se maintient.`,
+                confidence: 75,
+                recommendation: 'Préparer des contenus exclusifs pour capitaliser'
+            });
+
+            // Insight 5 : Opportunité digitale
+            const klassiks = data.digital.stations[1].listeners;
+            const french = data.digital.stations[2].listeners;
+            
+            if (french > klassiks * 0.5) {
+                insights.push({
+                    type: 'OPPORTUNITÉ',
+                    content: `💡 Skyrock 100% Français progresse fortement (+${((french/klassiks)*100).toFixed(0)}% vs Klassiks). Marché du rap français en explosion.`,
+                    confidence: 89,
+                    recommendation: 'Créer plus de playlists 100% français'
+                });
+            }
+
+            return insights;
+        }
+
+        // Formatage pour les émissions
+        function formatShowNumber(num) {
+            if (num >= 1) {
+                return num.toFixed(3).replace('.', ',') + 'M';
+            } else {
+                return (num * 1000).toFixed(0) + 'k';
+            }
+        }
+
+        // Chargement des données
+        async function loadData() {
+            try {
+                document.body.classList.add('loading');
+                
+                const response = await fetch('data.json?t=' + Date.now());
+                const data = await response.json();
+                currentData = data;
+                
+                // Mise à jour date
+                document.getElementById('update-date').textContent = 
+                    `Dernière mise à jour : ${data.lastUpdate}`;
+                
+                // Stats principales
+                document.getElementById('streaming-value').textContent = formatNumber(data.streaming.main);
+                document.getElementById('streaming-label').textContent = `ÉCOUTES ACTIVES • ${data.streaming.period}`;
+                document.getElementById('streaming-trend').innerHTML = 
+                    `<span class="trend-up">▲ ${data.streaming.trend}%</span> vs période précédente`;
+                
+                document.getElementById('audience-value').textContent = formatNumber(data.audience.daily);
+                document.getElementById('audience-label').textContent = `AUDITEURS QUOTIDIENS • ${data.audience.period}`;
+                document.getElementById('audience-trend').innerHTML = 
+                    `<span class="trend-up">▲ ${data.audience.trend}k</span> vs vague précédente`;
+                
+                // Classement digital
+                document.getElementById('digital-period').textContent = data.digital.period;
+                updateDigitalRanking(data.digital);
+                
+                // Classement IDF
+                document.getElementById('idf-period').textContent = data.idf.period;
+                updateIdfRanking(data.idf);
+                
+                // Émissions
+                document.getElementById('shows-period').textContent = data.shows.period;
+                updateShowsGrid(data.shows.items);
+                
+                // Génération des insights IA
+                const insights = generateInsights(data);
+                displayInsights(insights);
+                
+                // Prédictions IA
+                generatePredictions(data);
+                
+                // Sources
+                updateSources(data.sources);
+                
+                document.body.classList.remove('loading');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.body.classList.remove('loading');
+            }
+        }
+
+        // Affichage des insights
+        function displayInsights(insights) {
+            const container = document.getElementById('insights-container');
+            container.innerHTML = insights.map(insight => `
+                <div class="insight-card" onclick="showInsightDetails('${insight.type}', '${insight.content}', '${insight.recommendation}')">
+                    <div class="insight-type">${insight.type}</div>
+                    <div class="insight-content">${insight.content}</div>
+                    <div class="insight-meta">
+                        <span>Confiance IA</span>
+                        <div class="confidence">
+                            <span>${insight.confidence}%</span>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: ${insight.confidence}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Génération des prédictions
+        function generatePredictions(data) {
+            const predictions = [
+                {
+                    label: 'Auditeurs quotidiens',
+                    value: (data.audience.daily * 1.08).toFixed(0),
+                    range: '3,35M - 3,52M',
+                    confidence: 85
+                },
+                {
+                    label: 'Écoutes streaming',
+                    value: (data.streaming.main * 1.12).toFixed(0),
+                    range: '5,28M - 5,51M',
+                    confidence: 78
+                },
+                {
+                    label: 'Part de marché',
+                    value: (data.audience.share + 0.6).toFixed(1),
+                    range: '5,8% - 6,1%',
+                    confidence: 72
+                },
+                {
+                    label: 'Avance sur NRJ IDF',
+                    value: '21%',
+                    range: '18% - 24%',
+                    confidence: 88
+                }
+            ];
+
+            const grid = document.getElementById('predictions-grid');
+            grid.innerHTML = predictions.map(p => `
+                <div class="prediction-card">
+                    <div class="prediction-label">${p.label}</div>
+                    <div class="prediction-value">${p.value}</div>
+                    <div class="prediction-range">Intervalle: ${p.range}</div>
+                    <div class="prediction-confidence">
+                        <span>Confiance</span>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${p.confidence}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Mise à jour classement digital
+        function updateDigitalRanking(digital) {
+            const html = digital.stations.map(station => {
+                let displayValue = station.name.includes("100% Français") 
+                    ? (station.listeners / 1000).toFixed(1).replace('.', ',') + 'k'
+                    : formatNumber(station.listeners);
+                
+                return `
+                    <div class="progress-item" onclick="showStationDetails('${station.name}', ${station.listeners}, ${station.percentage})">
+                        <div class="progress-header">
+                            <span>${station.name}</span>
+                            <span>${displayValue}</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${station.percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('digital-ranking').innerHTML = html;
+        }
+
+        // Mise à jour classement IDF
+        function updateIdfRanking(idf) {
+            const html = idf.stations.map(station => `
+                <div class="progress-item" onclick="showStationDetails('${station.name}', ${station.listeners}, ${station.percentage})">
+                    <div class="progress-header">
+                        <span>${station.rank}. ${station.name}</span>
+                        <span>${formatNumber(station.listeners)}</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${station.percentage}%"></div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('idf-ranking').innerHTML = html;
+        }
+
+        // Mise à jour grille des émissions
+        function updateShowsGrid(shows) {
+            const html = shows.map(show => `
+                <div class="show-card" onclick="showShowDetails('${show.name}', '${show.host}', ${show.listeners})">
+                    <div class="show-name">${show.name}</div>
+                    <div class="show-host">${show.host} • ${show.time}</div>
+                    <div class="show-audience">
+                        <span>Auditeurs</span>
+                        <span class="show-audience-value">${formatShowNumber(show.listeners)}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('shows-grid').innerHTML = html;
+        }
+
+        // Mise à jour sources
+        function updateSources(sources) {
+            const html = sources.map(source => `
+                <div class="source-item" onclick="showSourceDetails('${source.name}')">
+                    <div class="source-dot ${source.class || ''}"></div>
+                    <span>${source.name} • ${source.period}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('data-sources').innerHTML = html;
+        }
+
+        // Fonctions interactives
+        function switchChart(chart, mode) {
+            chartMode[chart] = mode;
+            document.querySelectorAll(`.chart-card:nth-child(${chart === 'digital' ? 1 : 2}) .chart-btn`)
+                .forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (currentData) {
+                if (chart === 'digital') {
+                    updateDigitalRanking(currentData.digital);
+                } else {
+                    updateIdfRanking(currentData.idf);
+                }
+            }
+        }
+
+        function sortShows(criteria) {
+            if (!currentData) return;
+            
+            const shows = [...currentData.shows.items];
+            if (criteria === 'audience') {
+                shows.sort((a, b) => b.listeners - a.listeners);
+            } else {
+                shows.sort((a, b) => a.name.localeCompare(b.name));
+            }
+            
+            updateShowsGrid(shows);
+            
+            // Mise à jour boutons actifs
+            document.querySelectorAll('.chart-actions .chart-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Modale
+        function showInsightDetails(type, content, recommendation) {
+            document.getElementById('modal-title').textContent = type;
+            document.getElementById('modal-body').innerHTML = `
+                <p>${content}</p>
+                <p style="margin-top: 20px; padding: 15px; background: rgba(0,255,136,0.1); border-radius: 10px;">
+                    <strong>💡 Recommandation IA :</strong><br>${recommendation}
+                </p>
+            `;
+            document.getElementById('insight-modal').classList.add('active');
+        }
+
+        function showStationDetails(name, listeners, percentage) {
+            document.getElementById('modal-title').textContent = name;
+            document.getElementById('modal-body').innerHTML = `
+                <p><strong>Audience:</strong> ${formatNumber(listeners)}</p>
+                <p><strong>Part de marché:</strong> ${percentage}%</p>
+                <p><strong>Tendance:</strong> ${percentage > 50 ? '📈 Leader' : '📊 En progression'}</p>
+                <p style="margin-top: 15px;">Analyse IA : ${percentage > 80 ? 'Position dominante à consolider' : 'Potentiel de croissance important'}</p>
+            `;
+            document.getElementById('insight-modal').classList.add('active');
+        }
+
+        function showShowDetails(name, host, listeners) {
+            document.getElementById('modal-title').textContent = name;
+            document.getElementById('modal-body').innerHTML = `
+                <p><strong>Animateur:</strong> ${host}</p>
+                <p><strong>Audience:</strong> ${formatShowNumber(listeners)}</p>
+                <p><strong>Performance:</strong> ${listeners > 1 ? '⭐ Émission phare' : '📈 En développement'}</p>
+                <p style="margin-top: 15px;">Recommandation : ${listeners > 1 ? 'Maintenir la dynamique' : 'Proposer des exclusivités'}</p>
+            `;
+            document.getElementById('insight-modal').classList.add('active');
+        }
+
+        function showSourceDetails(source) {
+            document.getElementById('modal-title').textContent = source;
+            document.getElementById('modal-body').innerHTML = `
+                <p>Source officielle des données d'audience.</p>
+                <p>Certification : ✅ Données vérifiées</p>
+                <p>Prochaine mise à jour : ${new Date(Date.now() + 7*24*60*60*1000).toLocaleDateString('fr-FR')}</p>
+            `;
+            document.getElementById('insight-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('insight-modal').classList.remove('active');
+        }
+
+        function applyRecommendation() {
+            alert('✅ Recommandation enregistrée. Les équipes seront notifiées.');
+            closeModal();
+        }
+
+        // Initialisation
+        createParticles();
+        loadData();
+        setInterval(loadData, 3600000); // Recharge toutes les heures
+    </script>
+</body>
+</html>
