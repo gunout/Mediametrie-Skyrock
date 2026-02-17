@@ -5,10 +5,178 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SKYROCK • Tableau de Bord d'Audience</title>
     <style>
-        /* ===== STYLES CONSERVÉS DU PRÉCÉDENT TABLEAU DE BORD ===== */
-        /* (Copiez ici tous les styles du message précédent) */
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
         
-        /* Ajout d'un indicateur de mise à jour */
+        :root {
+            --primary: #00f3ff;
+            --secondary: #ff00e5;
+            --accent: #7000ff;
+            --background: #0a0a0f;
+            --surface: rgba(20, 20, 30, 0.8);
+            --surface-light: rgba(30, 30, 40, 0.9);
+            --text: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+            --success: #00ff88;
+            --warning: #ffbb00;
+            --danger: #ff3366;
+            --gradient-1: linear-gradient(135deg, #00f3ff, #7000ff);
+            --gradient-2: linear-gradient(135deg, #ff00e5, #ff6600);
+            --glass-effect: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--glass-effect) 1px, transparent 1px),
+                linear-gradient(90deg, var(--glass-effect) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) translateX(-10vw);
+            }
+            to {
+                transform: translateY(-100vh) translateX(10vw);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 243, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--gradient-1);
+            opacity: 0.1;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        .logo::after {
+            content: 'AUDIENCE DASHBOARD';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            font-size: 0.3em;
+            font-weight: 400;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 3px;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 50px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .pulse {
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 243, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); }
+        }
+
         .update-badge {
             background: rgba(0, 255, 136, 0.1);
             border: 1px solid #00ff88;
@@ -20,16 +188,294 @@
             align-items: center;
             gap: 8px;
         }
-        
-        .update-badge i {
-            font-size: 1.2em;
+
+        .main-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
         }
-        
+
+        .stat-card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 25px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 243, 255, 0.4);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--gradient-1);
+            border-radius: 27px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .stat-card:hover::before {
+            opacity: 0.3;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 243, 255, 0.1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .stat-source {
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            font-size: 0.8em;
+            color: var(--text-dim);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 3.5em;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 10px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        .audience-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .audience-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 25px;
+            padding: 25px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-title span {
+            background: var(--gradient-2);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: 400;
+        }
+
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .progress-item {
+            width: 100%;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+            font-size: 0.95em;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            position: relative;
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .shows-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .show-card {
+            background: var(--surface-light);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .show-card:hover {
+            border-color: var(--secondary);
+            box-shadow: 0 0 30px rgba(255, 0, 229, 0.3);
+        }
+
+        .show-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .show-host {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .show-audience {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .show-audience-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .footer {
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9em;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-sources {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+        }
+
+        .source-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .source-dot.acpm {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .source-dot.mediametrie {
+            background: var(--warning);
+            box-shadow: 0 0 10px var(--warning);
+        }
+
         .loading {
             position: relative;
             min-height: 200px;
         }
-        
+
         .loading::after {
             content: '⏳ Chargement des données...';
             position: absolute;
@@ -42,11 +488,9 @@
     </style>
 </head>
 <body>
-    <!-- Particules animées -->
     <div class="particles" id="particles"></div>
 
     <div class="container">
-        <!-- Header avec indicateur de mise à jour -->
         <div class="header">
             <div class="header-content">
                 <div class="logo">
@@ -63,9 +507,7 @@
             </div>
         </div>
 
-        <!-- Statistiques principales -->
         <div class="main-stats">
-            <!-- Carte streaming ACPM -->
             <div class="stat-card">
                 <div class="stat-header">
                     <div class="stat-icon">📱</div>
@@ -76,7 +518,6 @@
                 <div class="stat-trend" id="streaming-trend"></div>
             </div>
 
-            <!-- Carte audience nationale -->
             <div class="stat-card">
                 <div class="stat-header">
                     <div class="stat-icon">📻</div>
@@ -87,7 +528,6 @@
                 <div class="stat-trend" id="audience-trend"></div>
             </div>
 
-            <!-- Carte part d'audience -->
             <div class="stat-card">
                 <div class="stat-header">
                     <div class="stat-icon">🎯</div>
@@ -99,7 +539,6 @@
             </div>
         </div>
 
-        <!-- Grille d'audience -->
         <div class="audience-grid">
             <div class="chart-card">
                 <div class="chart-header">
@@ -108,48 +547,37 @@
                         <span id="digital-period">CHARGEMENT</span>
                     </div>
                 </div>
-                <div class="progress-list" id="digital-ranking">
-                    <!-- Rempli par JavaScript -->
-                </div>
+                <div class="progress-list" id="digital-ranking"></div>
             </div>
 
             <div class="chart-card">
                 <div class="chart-header">
                     <div class="chart-title">
                         🏆 TOP RADIOS MUSICALES IDF
-                        <span id="idf-period">JAN-MARS 2025</span>
+                        <span id="idf-period">CHARGEMENT</span>
                     </div>
                 </div>
-                <div class="ranking" id="idf-ranking">
-                    <!-- Rempli par JavaScript -->
-                </div>
+                <div class="progress-list" id="idf-ranking"></div>
             </div>
         </div>
 
-        <!-- Grille des émissions -->
         <div class="chart-card">
             <div class="chart-header">
                 <div class="chart-title">
                     🎙️ AUDIENCE DES ÉMISSIONS
-                    <span id="shows-period">NOV-DÉC 2025</span>
+                    <span id="shows-period">CHARGEMENT</span>
                 </div>
             </div>
-            <div class="shows-grid" id="shows-grid">
-                <!-- Rempli par JavaScript -->
-            </div>
+            <div class="shows-grid" id="shows-grid"></div>
         </div>
 
-        <!-- Pied de page -->
         <div class="footer">
             <div>SKYROCK AUDIENCE DASHBOARD • DONNÉES OFFICIELLES</div>
-            <div class="data-sources" id="data-sources">
-                <!-- Rempli par JavaScript -->
-            </div>
+            <div class="data-sources" id="data-sources"></div>
         </div>
     </div>
 
     <script>
-        // Génération des particules (conservée)
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
             const particleCount = 50;
@@ -169,148 +597,132 @@
             }
         }
 
-        // Chargement des données depuis data.json
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(3).replace('.', ',').replace(',000', '') + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1).replace('.', ',') + 'k';
+            }
+            return num.toString();
+        }
+
+        function formatShowNumber(num) {
+            if (num >= 1) {
+                return num.toFixed(3).replace('.', ',') + 'M';
+            } else {
+                return (num * 1000).toFixed(0) + 'k';
+            }
+        }
+
         async function loadData() {
             try {
-                // Afficher l'état de chargement
                 document.body.classList.add('loading');
                 
-                const response = await fetch('data.json?t=' + Date.now()); // Cache busting
+                const response = await fetch('data.json?t=' + Date.now());
                 const data = await response.json();
                 
-                // Mise à jour de la date
                 document.getElementById('update-date').textContent = 
                     `Dernière mise à jour : ${data.lastUpdate}`;
                 
-                // Mise à jour des stats principales
-                updateMainStats(data);
+                // Stats principales
+                document.getElementById('streaming-value').textContent = 
+                    formatNumber(data.streaming.main);
+                document.getElementById('streaming-label').textContent = 
+                    `ÉCOUTES ACTIVES • ${data.streaming.period}`;
+                document.getElementById('streaming-trend').innerHTML = 
+                    `<span class="trend-${data.streaming.trend > 0 ? 'up' : 'down'}">${data.streaming.trend > 0 ? '▲' : '▼'} ${Math.abs(data.streaming.trend)}%</span> vs période précédente`;
                 
-                // Mise à jour des classements
-                updateDigitalRanking(data.digital);
-                updateIdfRanking(data.idf);
-                updateShowsGrid(data.shows);
-                updateSources(data.sources);
+                document.getElementById('audience-value').textContent = 
+                    formatNumber(data.audience.daily);
+                document.getElementById('audience-label').textContent = 
+                    `AUDITEURS QUOTIDIENS • ${data.audience.period}`;
+                document.getElementById('audience-trend').innerHTML = 
+                    `<span class="trend-${data.audience.trend > 0 ? 'up' : 'down'}">${data.audience.trend > 0 ? '▲' : '▼'} ${Math.abs(data.audience.trend)}k</span> vs vague précédente`;
+                
+                document.getElementById('share-value').textContent = 
+                    data.audience.share + '%';
+                document.getElementById('share-label').textContent = 
+                    `PART D'AUDIENCE • ${data.audience.sharePeriod}`;
+                document.getElementById('share-trend').innerHTML = 
+                    `<span class="trend-${data.audience.shareTrend > 0 ? 'up' : 'down'}">${data.audience.shareTrend > 0 ? '▲' : '▼'} ${Math.abs(data.audience.shareTrend)} pts</span> vs vague précédente`;
+                
+                // Classement digital
+                document.getElementById('digital-period').textContent = data.digital.period;
+                const digitalHtml = data.digital.stations.map(station => {
+                    let displayValue;
+                    if (station.name.includes("100% Français")) {
+                        displayValue = (station.listeners / 1000).toFixed(1).replace('.', ',') + 'k';
+                    } else {
+                        displayValue = formatNumber(station.listeners);
+                    }
+                    
+                    return `
+                        <div class="progress-item">
+                            <div class="progress-header">
+                                <span>${station.name}</span>
+                                <span>${displayValue}</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${station.percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                document.getElementById('digital-ranking').innerHTML = digitalHtml;
+                
+                // Classement IDF
+                document.getElementById('idf-period').textContent = data.idf.period;
+                const idfHtml = data.idf.stations.map(station => `
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span>${station.rank}. ${station.name}</span>
+                            <span>${formatNumber(station.listeners)}</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${station.percentage}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('idf-ranking').innerHTML = idfHtml;
+                
+                // Émissions
+                document.getElementById('shows-period').textContent = data.shows.period;
+                const showsHtml = data.shows.items.map(show => `
+                    <div class="show-card">
+                        <div class="show-name">${show.name}</div>
+                        <div class="show-host">${show.host} • ${show.time}</div>
+                        <div class="show-audience">
+                            <span>Auditeurs</span>
+                            <span class="show-audience-value">${formatShowNumber(show.listeners)}</span>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('shows-grid').innerHTML = showsHtml;
+                
+                // Sources
+                const sourcesHtml = data.sources.map(source => `
+                    <div class="source-item">
+                        <div class="source-dot ${source.class || ''}"></div>
+                        <span>${source.name} • ${source.period}</span>
+                    </div>
+                `).join('');
+                document.getElementById('data-sources').innerHTML = sourcesHtml;
                 
                 document.body.classList.remove('loading');
                 
             } catch (error) {
                 console.error('Erreur chargement données:', error);
                 document.body.classList.remove('loading');
-                showFallbackData();
+                
+                // Données de secours
+                document.getElementById('streaming-value').textContent = '4,84M';
+                document.getElementById('audience-value').textContent = '3,16M';
+                document.getElementById('share-value').textContent = '5,3%';
             }
         }
 
-        function updateMainStats(data) {
-            // Streaming
-            document.getElementById('streaming-value').textContent = 
-                formatNumber(data.streaming.main) + ' M';
-            document.getElementById('streaming-label').textContent = 
-                `ÉCOUTES ACTIVES • ${data.streaming.period}`;
-            document.getElementById('streaming-trend').innerHTML = 
-                `<span class="trend-${data.streaming.trend > 0 ? 'up' : 'down'}">${data.streaming.trend > 0 ? '▲' : '▼'} ${Math.abs(data.streaming.trend)}%</span> vs période précédente`;
-            
-            // Audience
-            document.getElementById('audience-value').textContent = 
-                formatNumber(data.audience.daily) + ' M';
-            document.getElementById('audience-label').textContent = 
-                `AUDITEURS QUOTIDIENS • ${data.audience.period}`;
-            document.getElementById('audience-trend').innerHTML = 
-                `<span class="trend-${data.audience.trend > 0 ? 'up' : 'down'}">${data.audience.trend > 0 ? '▲' : '▼'} ${formatNumber(Math.abs(data.audience.trend))}k</span> vs vague précédente`;
-            
-            // Part d'audience
-            document.getElementById('share-value').textContent = 
-                data.audience.share + '%';
-            document.getElementById('share-label').textContent = 
-                `PART D'AUDIENCE • ${data.audience.sharePeriod}`;
-            document.getElementById('share-trend').innerHTML = 
-                `<span class="trend-${data.audience.shareTrend > 0 ? 'up' : 'down'}">${data.audience.shareTrend > 0 ? '▲' : '▼'} ${Math.abs(data.audience.shareTrend)} pts</span> vs vague précédente`;
-        }
-
-        function updateDigitalRanking(digital) {
-            document.getElementById('digital-period').textContent = digital.period;
-            
-            const html = digital.stations.map(station => `
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span>${station.name}</span>
-                        <span>${formatNumber(station.listeners)}M</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: ${station.percentage}%"></div>
-                    </div>
-                </div>
-            `).join('');
-            
-            document.getElementById('digital-ranking').innerHTML = html;
-        }
-
-        function updateIdfRanking(idf) {
-            document.getElementById('idf-period').textContent = idf.period;
-            
-            const html = idf.stations.map(station => `
-                <div class="progress-item">
-                    <div class="progress-header">
-                        <span>${station.rank}. ${station.name}</span>
-                        <span>${formatNumber(station.listeners)}k</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: ${station.percentage}%"></div>
-                    </div>
-                </div>
-            `).join('');
-            
-            document.getElementById('idf-ranking').innerHTML = html;
-        }
-
-        function updateShowsGrid(shows) {
-            document.getElementById('shows-period').textContent = shows.period;
-            
-            const html = shows.items.map(show => `
-                <div class="show-card">
-                    <div class="show-name">${show.name}</div>
-                    <div class="show-host">${show.host} • ${show.time}</div>
-                    <div class="show-audience">
-                        <span>Auditeurs</span>
-                        <span class="show-audience-value">${formatNumber(show.listeners)}${show.listeners >= 1 ? 'M' : 'k'}</span>
-                    </div>
-                </div>
-            `).join('');
-            
-            document.getElementById('shows-grid').innerHTML = html;
-        }
-
-        function updateSources(sources) {
-            const html = sources.map(source => `
-                <div class="source-item">
-                    <div class="source-dot ${source.class || ''}"></div>
-                    <span>${source.name} • ${source.period}</span>
-                </div>
-            `).join('');
-            
-            document.getElementById('data-sources').innerHTML = html;
-        }
-
-        function formatNumber(num) {
-            if (num >= 1000000) {
-                return (num / 1000000).toFixed(2).replace('.', ',');
-            } else if (num >= 1000) {
-                return (num / 1000).toFixed(1).replace('.', ',');
-            }
-            return num.toString();
-        }
-
-        function showFallbackData() {
-            // Données de secours en cas d'erreur
-            document.getElementById('streaming-value').textContent = '4,84 M';
-            document.getElementById('audience-value').textContent = '3,16 M';
-            document.getElementById('share-value').textContent = '5,3%';
-        }
-
-        // Initialisation
         createParticles();
         loadData();
-        
-        // Rechargement toutes les heures (pour voir les mises à jour)
         setInterval(loadData, 3600000);
     </script>
 </body>
