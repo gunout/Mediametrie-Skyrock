@@ -1,0 +1,48 @@
+{
+  "lastUpdate": "2026-02-18",
+  "streaming": {
+    "main": 4840000,
+    "period": "JANVIER 2026",
+    "trend": 12.3
+  },
+  "digital": {
+    "period": "JANVIER 2026",
+    "stations": [
+      {"name": "Skyrock (station principale)", "listeners": 4840000, "percentage": 100},
+      {"name": "Skyrock Klassiks", "listeners": 1110000, "percentage": 23},
+      {"name": "Skyrock 100% Français", "listeners": 508000, "percentage": 10.5}
+    ]
+  },
+  "audience": {
+    "daily": 3160000,
+    "period": "NOV-DÉC 2025",
+    "trend": 220,
+    "share": 5.3,
+    "sharePeriod": "SEPT-OCT 2025",
+    "shareTrend": 0.4
+  },
+  "idf": {
+    "period": "JAN-MARS 2025",
+    "stations": [
+      {"rank": 1, "name": "Skyrock", "listeners": 479000, "percentage": 100},
+      {"rank": 2, "name": "NRJ", "listeners": 452000, "percentage": 94},
+      {"rank": 3, "name": "Fun Radio", "listeners": 412000, "percentage": 86}
+    ]
+  },
+  "shows": {
+    "period": "NOV-DÉC 2025",
+    "items": [
+      {"name": "LE MORNING", "host": "Difool", "time": "6h-9h15", "listeners": 1.317},
+      {"name": "LE 16-20", "host": "Mrik", "time": "16h-20h", "listeners": 1.356},
+      {"name": "LES DÉDICACES", "host": "Mehdi", "time": "20h-21h", "listeners": 1.066},
+      {"name": "RAP & RNB NON-STOP", "host": "Fred", "time": "", "listeners": 0.882},
+      {"name": "PLANÈTE RAP", "host": "Fred", "time": "20h-21h", "listeners": 0.188},
+      {"name": "LA RADIO LIBRE", "host": "Difool", "time": "21h-minuit", "listeners": 0.247}
+    ]
+  },
+  "sources": [
+    {"name": "ACPM", "period": "Janvier 2026", "class": "acpm"},
+    {"name": "Médiamétrie EAR", "period": "Nov-Déc 2025", "class": "mediametrie"},
+    {"name": "Médiamétrie IDF", "period": "Jan-Mars 2025", "class": ""}
+  ]
+}

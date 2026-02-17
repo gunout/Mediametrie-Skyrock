@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKYROCK • Tableau de Bord d'Audience</title>
+    <style>
+        /* ===== STYLES CONSERVÉS DU PRÉCÉDENT TABLEAU DE BORD ===== */
+        /* (Copiez ici tous les styles du message précédent) */
+        
+        /* Ajout d'un indicateur de mise à jour */
+        .update-badge {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .update-badge i {
+            font-size: 1.2em;
+        }
+        
+        .loading {
+            position: relative;
+            min-height: 200px;
+        }
+        
+        .loading::after {
+            content: '⏳ Chargement des données...';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-dim);
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particules animées -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- Header avec indicateur de mise à jour -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">
+                    SKYROCK
+                </div>
+                <div class="live-indicator">
+                    <div class="pulse"></div>
+                    <span>MISE À JOUR HEBDOMADAIRE • GITHUB ACTIONS</span>
+                </div>
+                <div class="update-badge" id="update-badge">
+                    <span>🔄</span>
+                    <span id="update-date">Chargement...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques principales -->
+        <div class="main-stats">
+            <!-- Carte streaming ACPM -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">📱</div>
+                    <div class="stat-source">ACPM • Hebdomadaire</div>
+                </div>
+                <div class="stat-value" id="streaming-value">---</div>
+                <div class="stat-label" id="streaming-label">ÉCOUTES ACTIVES • CHARGEMENT</div>
+                <div class="stat-trend" id="streaming-trend"></div>
+            </div>
+
+            <!-- Carte audience nationale -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">📻</div>
+                    <div class="stat-source">Médiamétrie • EAR</div>
+                </div>
+                <div class="stat-value" id="audience-value">---</div>
+                <div class="stat-label" id="audience-label">AUDITEURS QUOTIDIENS</div>
+                <div class="stat-trend" id="audience-trend"></div>
+            </div>
+
+            <!-- Carte part d'audience -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-source">Médiamétrie</div>
+                </div>
+                <div class="stat-value" id="share-value">---</div>
+                <div class="stat-label" id="share-label">PART D'AUDIENCE</div>
+                <div class="stat-trend" id="share-trend"></div>
+            </div>
+        </div>
+
+        <!-- Grille d'audience -->
+        <div class="audience-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        📊 CLASSEMENT DIGITAL ACPM
+                        <span id="digital-period">CHARGEMENT</span>
+                    </div>
+                </div>
+                <div class="progress-list" id="digital-ranking">
+                    <!-- Rempli par JavaScript -->
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">
+                        🏆 TOP RADIOS MUSICALES IDF
+                        <span id="idf-period">JAN-MARS 2025</span>
+                    </div>
+                </div>
+                <div class="ranking" id="idf-ranking">
+                    <!-- Rempli par JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Grille des émissions -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    🎙️ AUDIENCE DES ÉMISSIONS
+                    <span id="shows-period">NOV-DÉC 2025</span>
+                </div>
+            </div>
+            <div class="shows-grid" id="shows-grid">
+                <!-- Rempli par JavaScript -->
+            </div>
+        </div>
+
+        <!-- Pied de page -->
+        <div class="footer">
+            <div>SKYROCK AUDIENCE DASHBOARD • DONNÉES OFFICIELLES</div>
+            <div class="data-sources" id="data-sources">
+                <!-- Rempli par JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Génération des particules (conservée)
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                
+                const colors = ['#00f3ff', '#ff00e5', '#7000ff', '#00ff88'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Chargement des données depuis data.json
+        async function loadData() {
+            try {
+                // Afficher l'état de chargement
+                document.body.classList.add('loading');
+                
+                const response = await fetch('data.json?t=' + Date.now()); // Cache busting
+                const data = await response.json();
+                
+                // Mise à jour de la date
+                document.getElementById('update-date').textContent = 
+                    `Dernière mise à jour : ${data.lastUpdate}`;
+                
+                // Mise à jour des stats principales
+                updateMainStats(data);
+                
+                // Mise à jour des classements
+                updateDigitalRanking(data.digital);
+                updateIdfRanking(data.idf);
+                updateShowsGrid(data.shows);
+                updateSources(data.sources);
+                
+                document.body.classList.remove('loading');
+                
+            } catch (error) {
+                console.error('Erreur chargement données:', error);
+                document.body.classList.remove('loading');
+                showFallbackData();
+            }
+        }
+
+        function updateMainStats(data) {
+            // Streaming
+            document.getElementById('streaming-value').textContent = 
+                formatNumber(data.streaming.main) + ' M';
+            document.getElementById('streaming-label').textContent = 
+                `ÉCOUTES ACTIVES • ${data.streaming.period}`;
+            document.getElementById('streaming-trend').innerHTML = 
+                `<span class="trend-${data.streaming.trend > 0 ? 'up' : 'down'}">${data.streaming.trend > 0 ? '▲' : '▼'} ${Math.abs(data.streaming.trend)}%</span> vs période précédente`;
+            
+            // Audience
+            document.getElementById('audience-value').textContent = 
+                formatNumber(data.audience.daily) + ' M';
+            document.getElementById('audience-label').textContent = 
+                `AUDITEURS QUOTIDIENS • ${data.audience.period}`;
+            document.getElementById('audience-trend').innerHTML = 
+                `<span class="trend-${data.audience.trend > 0 ? 'up' : 'down'}">${data.audience.trend > 0 ? '▲' : '▼'} ${formatNumber(Math.abs(data.audience.trend))}k</span> vs vague précédente`;
+            
+            // Part d'audience
+            document.getElementById('share-value').textContent = 
+                data.audience.share + '%';
+            document.getElementById('share-label').textContent = 
+                `PART D'AUDIENCE • ${data.audience.sharePeriod}`;
+            document.getElementById('share-trend').innerHTML = 
+                `<span class="trend-${data.audience.shareTrend > 0 ? 'up' : 'down'}">${data.audience.shareTrend > 0 ? '▲' : '▼'} ${Math.abs(data.audience.shareTrend)} pts</span> vs vague précédente`;
+        }
+
+        function updateDigitalRanking(digital) {
+            document.getElementById('digital-period').textContent = digital.period;
+            
+            const html = digital.stations.map(station => `
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>${station.name}</span>
+                        <span>${formatNumber(station.listeners)}M</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${station.percentage}%"></div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('digital-ranking').innerHTML = html;
+        }
+
+        function updateIdfRanking(idf) {
+            document.getElementById('idf-period').textContent = idf.period;
+            
+            const html = idf.stations.map(station => `
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>${station.rank}. ${station.name}</span>
+                        <span>${formatNumber(station.listeners)}k</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${station.percentage}%"></div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('idf-ranking').innerHTML = html;
+        }
+
+        function updateShowsGrid(shows) {
+            document.getElementById('shows-period').textContent = shows.period;
+            
+            const html = shows.items.map(show => `
+                <div class="show-card">
+                    <div class="show-name">${show.name}</div>
+                    <div class="show-host">${show.host} • ${show.time}</div>
+                    <div class="show-audience">
+                        <span>Auditeurs</span>
+                        <span class="show-audience-value">${formatNumber(show.listeners)}${show.listeners >= 1 ? 'M' : 'k'}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('shows-grid').innerHTML = html;
+        }
+
+        function updateSources(sources) {
+            const html = sources.map(source => `
+                <div class="source-item">
+                    <div class="source-dot ${source.class || ''}"></div>
+                    <span>${source.name} • ${source.period}</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('data-sources').innerHTML = html;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(2).replace('.', ',');
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1).replace('.', ',');
+            }
+            return num.toString();
+        }
+
+        function showFallbackData() {
+            // Données de secours en cas d'erreur
+            document.getElementById('streaming-value').textContent = '4,84 M';
+            document.getElementById('audience-value').textContent = '3,16 M';
+            document.getElementById('share-value').textContent = '5,3%';
+        }
+
+        // Initialisation
+        createParticles();
+        loadData();
+        
+        // Rechargement toutes les heures (pour voir les mises à jour)
+        setInterval(loadData, 3600000);
+    </script>
+</body>
+</html>
